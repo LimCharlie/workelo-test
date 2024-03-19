@@ -18,10 +18,7 @@ def find_available_slots(serialized_agenda, duration)
   start_time = serialized_agenda.first['start'].to_date
 
   until start_time == serialized_agenda.last['end'].to_date.next
-    daily_agenda = serialized_agenda.select do |event|
-      start_date = event['start'].to_date
-      start_date == start_time
-    end
+    daily_agenda = serialized_agenda.select { |event| start_date == event['start'].to_date }
     available_slots.concat(find_slots_for_day(daily_agenda, start_time, duration))
     start_time = start_time.next
   end
@@ -53,15 +50,15 @@ def find_slots_for_day(events, start_time, duration)
   available_slots
 end
 
-def serialize_data(agenda1, agenda2)
+def serialized_data(agenda1, agenda2)
   agenda1 = parse_json_file(agenda1)
   agenda2 = parse_json_file(agenda2)
-  serialized_agenda1 = serialize_agenda(agenda1)
-  serialized_agenda2 = serialize_agenda(agenda2)
+  serialized_agenda1 = serialized_agenda(agenda1)
+  serialized_agenda2 = serialized_agenda(agenda2)
   (serialized_agenda1 + serialized_agenda2).sort_by { |event| event['start'] }
 end
 
-def serialize_agenda(agenda)
+def serialized_agenda(agenda)
   agenda.map do |event|
     event.each_with_object({}) do |(key, value), serialized_event|
       serialized_event[key] = DateTime.parse(value)
@@ -69,15 +66,15 @@ def serialize_agenda(agenda)
   end
 end
 
-agenda1_path = 'input_andy.json'
-agenda2_path = 'input_sandra.json'
-serialize_agenda = serialize_data(agenda1_path, agenda2_path)
+# agenda1_path = 'input_andy.json'
+# agenda2_path = 'input_sandra.json'
+# serialize_agenda = serialize_data(agenda1_path, agenda2_path)
 
-if serialize_agenda
-  available_slots = find_available_slots(serialize_agenda, 60) # Durée de 1 heure
-  available_slots.each do |slot|
-    puts "#{slot[0].strftime('%Y-%m-%d %H:%M')} - #{slot[1].strftime('%Y-%m-%d %H:%M')}"
-  end
-else
-  puts "Erreur lors de l'ouverture ou de l'analyse des fichiers JSON."
-end
+# if serialize_agenda
+#   available_slots = find_available_slots(serialize_agenda, 60) # Durée de 1 heure
+#   available_slots.each do |slot|
+#     puts "#{slot[0].strftime('%Y-%m-%d %H:%M')} - #{slot[1].strftime('%Y-%m-%d %H:%M')}"
+#   end
+# else
+#   puts "Erreur lors de l'ouverture ou de l'analyse des fichiers JSON."
+# end
